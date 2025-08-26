@@ -4,16 +4,22 @@ import (
 	"context"
 	"errors"
 	"huddle/internal/user"
+	"huddle/internal/websocket"
+	"huddle/pkg/logger"
+
+	"go.uber.org/zap"
 )
 
 type service struct {
 	repo Repository
+	wsService websocket.Service
 }
 
 // NewService creates a new message service
-func NewService(repo Repository) Service {
+func NewService(repo Repository, wsService websocket.Service) Service {
 	return &service{
 		repo: repo,
+		wsService: wsService,
 	}
 }
 
@@ -43,7 +49,30 @@ func (s *service) CreateMessage(ctx context.Context, userID, conversationID uint
 	}
 
 	// Build response
-	return s.buildMessageResponse(ctx, message), nil
+	response := s.buildMessageResponse(ctx, message)
+
+	// Broadcast real-time message to conversation participants
+	go func() {
+		// Convert MessageResponse to map for WebSocket
+		messageData := map[string]interface{}{
+			"id":              response.ID,
+			"sender_id":       response.SenderID,
+			"sender_name":     response.Sender.Username,
+			"content":         response.Content,
+			"message_type":    response.MessageType,
+			"created_at":      response.CreatedAt,
+			"updated_at":      response.UpdatedAt,
+		}
+		
+		logger.Info("Broadcasting new message", 
+			zap.Uint("conversation_id", conversationID),
+			zap.Uint("message_id", response.ID),
+			zap.String("content", response.Content))
+		
+		s.wsService.HandleNewMessage(context.Background(), conversationID, messageData)
+	}()
+
+	return response, nil
 }
 
 func (s *service) GetMessage(ctx context.Context, userID, messageID uint) (*MessageResponse, error) {

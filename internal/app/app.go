@@ -14,6 +14,7 @@ import (
 	"huddle/internal/message"
 	"huddle/internal/middleware"
 	"huddle/internal/user"
+	"huddle/internal/websocket"
 	"huddle/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -72,10 +73,16 @@ func setupRoutes(router *gin.Engine) {
 	conversationHandler := conversation.NewHandler(conversationService)
 	logger.Info("Conversation module initialized successfully")
 
+	// Initialize WebSocket module first (needed by message module)
+	logger.Info("Initializing WebSocket module...")
+	wsService := websocket.NewService()
+	wsHandler := websocket.NewHandler(wsService)
+	logger.Info("WebSocket module initialized successfully")
+
 	// Initialize message module
 	logger.Info("Initializing message module...")
 	messageRepo := message.NewRepository()
-	messageService := message.NewService(messageRepo)
+	messageService := message.NewService(messageRepo, wsService)
 	messageHandler := message.NewHandler(messageService)
 	logger.Info("Message module initialized successfully")
 	
@@ -105,7 +112,17 @@ func setupRoutes(router *gin.Engine) {
 		logger.Info("Setting up message routes...")
 		message.SetupRoutes(api, messageHandler)
 		logger.Info("Message routes setup completed")
+
+		// WebSocket routes
+		logger.Info("Setting up WebSocket routes...")
+		websocket.SetupRoutes(api, wsHandler)
+		logger.Info("WebSocket routes setup completed")
 	}
+
+	// Start WebSocket hub
+	logger.Info("Starting WebSocket hub...")
+	wsService.StartHub()
+	logger.Info("WebSocket hub started successfully")
 
 	// Root route
 	router.GET("/", func(c *gin.Context) {

@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Huddle WebSocket Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .container {
+        display: flex;
+        gap: 20px;
+      }
+      .panel {
+        flex: 1;
+        border: 1px solid #ccc;
+        padding: 15px;
+        border-radius: 5px;
+      }
+      .status {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .connected {
+        background-color: #d4edda;
+        color: #155724;
+      }
+      .disconnected {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+      .message {
+        background-color: #f8f9fa;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 3px;
+        border-left: 3px solid #007bff;
+      }
+      .new-message {
+        background-color: #e8f5e8;
+        border-left: 3px solid #28a745;
+      }
+      .typing {
+        background-color: #fff3cd;
+        border-left: 3px solid #ffc107;
+        font-style: italic;
+      }
+      .system {
+        background-color: #d1ecf1;
+        border-left: 3px solid #17a2b8;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 3px;
+      }
+      input,
+      button {
+        margin: 5px;
+        padding: 8px;
+      }
+      button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+      }
+      #messageLog {
+        height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: #f8f9fa;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🚀 Huddle WebSocket Test</h1>
+
+    <div class="container">
+      <div class="panel">
+        <h3>🔐 Authentication</h3>
+        <div>
+          <input
+            type="text"
+            id="username"
+            placeholder="Username"
+            value="testuser1"
+          />
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            value="Password123!"
+          />
+          <button onclick="login()">Login</button>
+        </div>
+        <div id="authStatus" class="status disconnected">Not authenticated</div>
+        <div id="tokenInfo"></div>
+      </div>
+
+      <div class="panel">
+        <h3>🔌 WebSocket Connection</h3>
+        <div>
+          <button onclick="connect()" id="connectBtn">Connect</button>
+          <button onclick="disconnect()" id="disconnectBtn" disabled>
+            Disconnect
+          </button>
+        </div>
+        <div id="wsStatus" class="status disconnected">Disconnected</div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="panel">
+        <h3>💬 Test Messages</h3>
+        <div>
+          <input
+            type="number"
+            id="conversationId"
+            placeholder="Conversation ID"
+            value="10"
+          />
+          <button onclick="joinConversation()">Join Conversation</button>
+          <button onclick="leaveConversation()">Leave Conversation</button>
+        </div>
+        <div>
+          <button onclick="sendTyping()">Send Typing</button>
+          <button onclick="sendStopTyping()">Stop Typing</button>
+        </div>
+        <div>
+          <input type="text" id="testMessage" placeholder="Test message" />
+          <button onclick="sendTestMessage()">Send Test Message</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>👥 Online Users</h3>
+        <button onclick="getOnlineUsers()">Get Online Users</button>
+        <div id="onlineUsers"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>📨 Message Log</h3>
+      <div id="messageLog"></div>
+    </div>
+
+    <script>
+      let token = null;
+      let ws = null;
+      let currentConversationId = null;
+
+      // Authentication
+      async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        try {
+          const response = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          });
+
+          const data = await response.json();
+
+          if (data.success) {
+            token = data.data.tokens.access_token;
+            document.getElementById("authStatus").textContent = "Authenticated";
+            document.getElementById("authStatus").className =
+              "status connected";
+            document.getElementById(
+              "tokenInfo"
+            ).textContent = `Token: ${token.substring(0, 50)}...`;
+            logMessage("✅ Login successful");
+          } else {
+            logMessage("❌ Login failed: " + data.error.message, true);
+          }
+        } catch (error) {
+          logMessage("❌ Login error: " + error.message, true);
+        }
+      }
+
+      // WebSocket Connection
+      function connect() {
+        if (!token) {
+          logMessage("❌ Please login first", true);
+          return;
+        }
+
+        try {
+          // Connect to WebSocket with token in URL
+          // Note: WebSocket doesn't support custom headers directly
+          ws = new WebSocket(
+            `ws://localhost:8080/api/ws/connect?token=${token}`
+          );
+
+          ws.onopen = function () {
+            document.getElementById("wsStatus").textContent = "Connected";
+            document.getElementById("wsStatus").className = "status connected";
+            document.getElementById("connectBtn").disabled = true;
+            document.getElementById("disconnectBtn").disabled = false;
+            logMessage("🔌 WebSocket connected");
+          };
+
+          ws.onmessage = function (event) {
+            try {
+              const message = JSON.parse(event.data);
+
+              // Handle different message types
+              switch (message.type) {
+                case "new_message":
+                  logMessage(
+                    `💬 New message from ${message.data.sender_name}: ${message.data.content}`,
+                    false,
+                    "message"
+                  );
+                  break;
+                case "user_typing":
+                  logMessage(
+                    `⌨️ ${message.username} is typing...`,
+                    false,
+                    "typing"
+                  );
+                  break;
+                case "user_joined":
+                  logMessage(
+                    `👋 ${message.username} joined the conversation`,
+                    false,
+                    "system"
+                  );
+                  break;
+                case "user_left":
+                  logMessage(
+                    `👋 ${message.username} left the conversation`,
+                    false,
+                    "system"
+                  );
+                  break;
+                default:
+                  logMessage(
+                    "📨 Received: " + JSON.stringify(message, null, 2)
+                  );
+              }
+            } catch (error) {
+              logMessage("📨 Received raw: " + event.data);
+            }
+          };
+
+          ws.onclose = function () {
+            document.getElementById("wsStatus").textContent = "Disconnected";
+            document.getElementById("wsStatus").className =
+              "status disconnected";
+            document.getElementById("connectBtn").disabled = false;
+            document.getElementById("disconnectBtn").disabled = true;
+            logMessage("🔌 WebSocket disconnected");
+          };
+
+          ws.onerror = function (error) {
+            logMessage("❌ WebSocket error: " + error, true);
+          };
+        } catch (error) {
+          logMessage("❌ Connection error: " + error.message, true);
+        }
+      }
+
+      function disconnect() {
+        if (ws) {
+          ws.close();
+          ws = null;
+        }
+      }
+
+      // WebSocket Messages
+      function sendMessage(type, data) {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+          logMessage("❌ WebSocket not connected", true);
+          return;
+        }
+
+        const message = {
+          type: type,
+          data: data,
+          timestamp: new Date().toISOString(),
+        };
+
+        ws.send(JSON.stringify(message));
+        logMessage("📤 Sent: " + JSON.stringify(message, null, 2));
+      }
+
+      function joinConversation() {
+        const conversationId = parseInt(
+          document.getElementById("conversationId").value
+        );
+        if (!conversationId) {
+          logMessage("❌ Please enter conversation ID", true);
+          return;
+        }
+
+        currentConversationId = conversationId;
+        sendMessage("join_conversation", { conversation_id: conversationId });
+      }
+
+      function leaveConversation() {
+        if (!currentConversationId) {
+          logMessage("❌ Not in any conversation", true);
+          return;
+        }
+
+        sendMessage("leave_conversation", {
+          conversation_id: currentConversationId,
+        });
+        currentConversationId = null;
+      }
+
+      function sendTyping() {
+        if (!currentConversationId) {
+          logMessage("❌ Please join a conversation first", true);
+          return;
+        }
+
+        sendMessage("typing", { conversation_id: currentConversationId });
+      }
+
+      function sendStopTyping() {
+        if (!currentConversationId) {
+          logMessage("❌ Please join a conversation first", true);
+          return;
+        }
+
+        sendMessage("stop_typing", { conversation_id: currentConversationId });
+      }
+
+      async function sendTestMessage() {
+        const message = document.getElementById("testMessage").value;
+        if (!message) {
+          logMessage("❌ Please enter a message", true);
+          return;
+        }
+
+        if (!currentConversationId) {
+          logMessage("❌ Please join a conversation first", true);
+          return;
+        }
+
+        if (!token) {
+          logMessage("❌ Please login first", true);
+          return;
+        }
+
+        try {
+          // Send message via API (this will trigger real-time broadcast)
+          const response = await fetch(
+            `http://localhost:8080/api/conversations/${currentConversationId}/messages/`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: JSON.stringify({
+                content: message,
+                message_type: "text",
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            logMessage("📤 Message sent via API: " + message);
+            document.getElementById("testMessage").value = "";
+          } else {
+            logMessage("❌ Failed to send message: " + data.error, true);
+          }
+        } catch (error) {
+          logMessage("❌ Error sending message: " + error.message, true);
+        }
+      }
+
+      // API Calls
+      async function getOnlineUsers() {
+        if (!token) {
+          logMessage("❌ Please login first", true);
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "http://localhost:8080/api/ws/users/online",
+            {
+              headers: {
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (data.success) {
+            const users = data.data.users;
+            const userList = users
+              .map(
+                (user) =>
+                  `${user.username} (${
+                    user.is_online ? "🟢 Online" : "🔴 Offline"
+                  })`
+              )
+              .join("<br>");
+
+            document.getElementById("onlineUsers").innerHTML =
+              userList || "No users online";
+            logMessage("👥 Online users: " + users.length);
+          } else {
+            logMessage("❌ Failed to get online users: " + data.error, true);
+          }
+        } catch (error) {
+          logMessage("❌ Error getting online users: " + error.message, true);
+        }
+      }
+
+      // Utility Functions
+      function logMessage(message, isError = false, type = "info") {
+        const log = document.getElementById("messageLog");
+        const timestamp = new Date().toLocaleTimeString();
+        const logEntry = document.createElement("div");
+
+        let className = isError ? "error" : "message";
+        if (type === "message") className = "message new-message";
+        if (type === "typing") className = "message typing";
+        if (type === "system") className = "message system";
+
+        logEntry.className = className;
+        logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
+        log.appendChild(logEntry);
+        log.scrollTop = log.scrollHeight;
+      }
+
+      // Auto-login on page load
+      window.onload = function () {
+        logMessage("🚀 Huddle WebSocket Test loaded");
+        logMessage(
+          '💡 Click "Login" to authenticate, then "Connect" to establish WebSocket connection'
+        );
+      };
+    </script>
+  </body>
+</html>

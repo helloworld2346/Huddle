@@ -44,6 +44,7 @@ build:
 
 run:
 	@echo "🚀 Running application..."
+	lsof -t -i:8080 | xargs kill -9
 	go run ./cmd/server
 
 clean:

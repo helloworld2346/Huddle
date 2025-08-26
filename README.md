@@ -46,8 +46,9 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 - [x] **Message history**: Lưu trữ và tìm kiếm tin nhắn ✅
 - [x] **Message reactions**: Like, heart, emoji reactions ✅
 - [x] **Read receipts**: Hiển thị trạng thái đã đọc (conversation level) ✅
-- [ ] **Real-time messaging**: WebSocket cho tin nhắn tức thì ⏳
-- [ ] **Typing indicators**: Hiển thị đang gõ ⏳
+- [x] **Real-time messaging**: WebSocket cho tin nhắn tức thì ✅
+- [x] **Typing indicators**: Hiển thị đang gõ ✅
+- [x] **Online/Offline status**: Track user presence ✅
 
 ### 📁 File Sharing
 
@@ -238,11 +239,11 @@ huddle/
 
 ### 🚀 **Current Status (August 2025)**
 
-**✅ Phase 1, 2 & 3 COMPLETED** - Core infrastructure, authentication system, và chat system đã hoàn thành 100%
+**✅ Phase 1, 2, 3 & 4 COMPLETED** - Core infrastructure, authentication system, chat system, và real-time messaging đã hoàn thành 100%
 
-**🎯 Next Target**: WebSocket Hub cho real-time messaging (Phase 4)
+**🎯 Next Target**: File sharing với MinIO (Phase 5)
 
-**📊 Progress**: 85% of total project (Core features + Friend System + Conversation System + Message System ready)
+**📊 Progress**: 95% of total project (Core features + Friend System + Conversation System + Message System + WebSocket Hub ready)
 
 ### ✅ **Đã hoàn thành (Phase 1 - Foundation)**
 
@@ -412,7 +413,7 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 
 - **Golang** (1.24.6) - Ngôn ngữ lập trình chính
 - **Gin** (v1.10.1) - HTTP web framework
-- **Gorilla WebSocket** - Real-time communication (ready for implementation)
+- **Gorilla WebSocket** - Real-time communication ✅
 - **GORM** (v1.30.1) - ORM cho database
 - **PostgreSQL** (15-alpine) - Relational database
 - **Redis** (7-alpine) - Cache, session storage, token blacklisting ✅
@@ -508,6 +509,27 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 - Docker & Docker Compose
 - PostgreSQL 15+
 - Redis 7+
+
+### 🧪 Testing WebSocket
+
+Để test real-time messaging, sử dụng file `test_websocket.html`:
+
+```bash
+# Mở file test trong browser
+open test_websocket.html
+
+# Hoặc truy cập trực tiếp
+# file:///path/to/huddle/test_websocket.html
+```
+
+**Test Steps:**
+
+1. Login với 2 users khác nhau (testuser1, testuser2)
+2. Connect WebSocket cho cả 2 users
+3. Join conversation 10
+4. Gửi messages qua API - sẽ thấy real-time broadcasting
+5. Test typing indicators
+6. Check online users
 
 ### Quick Start với Docker
 
@@ -847,6 +869,95 @@ curl -X DELETE http://localhost:8080/api/conversations/10/messages/123/reactions
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
 
+### 🔌 WebSocket APIs
+
+```bash
+# Connect to WebSocket (with JWT token in query parameter)
+wscat -c "ws://localhost:8080/api/ws/connect?token=YOUR_ACCESS_TOKEN"
+
+# Get online users
+curl -X GET http://localhost:8080/api/ws/users/online \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Get user status
+curl -X GET http://localhost:8080/api/ws/users/123/status \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+#### WebSocket Events
+
+**Client to Server:**
+
+```json
+// Join conversation
+{
+  "type": "join_conversation",
+  "data": {
+    "conversation_id": 10
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+
+// Send typing indicator
+{
+  "type": "typing",
+  "data": {
+    "conversation_id": 10
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+
+// Stop typing
+{
+  "type": "stop_typing",
+  "data": {
+    "conversation_id": 10
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+```
+
+**Server to Client:**
+
+```json
+// New message received
+{
+  "type": "new_message",
+  "data": {
+    "id": 123,
+    "conversation_id": 10,
+    "sender_id": 456,
+    "sender_name": "testuser1",
+    "content": "Hello everyone!",
+    "message_type": "text",
+    "created_at": "2025-08-26T14:00:00.000Z"
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+
+// User typing indicator
+{
+  "type": "user_typing",
+  "data": {
+    "conversation_id": 10
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z",
+  "user_id": 456,
+  "username": "testuser1"
+}
+
+// User joined conversation
+{
+  "type": "user_joined",
+  "data": {
+    "conversation_id": 10,
+    "user_id": 456,
+    "username": "testuser1"
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+```
+
 ## 🧪 Testing & API Examples
 
 ### Security Features
@@ -896,6 +1007,16 @@ curl -X DELETE http://localhost:8080/api/conversations/10/messages/123/reactions
 - Access control (only participants can access) tested
 - Message sender validation tested
 - New participants can see old messages tested
+
+#### ✅ **WebSocket System**
+
+- WebSocket connection and authentication tested
+- Real-time message broadcasting tested
+- Typing indicators tested
+- Online/offline status tracking tested
+- Room-based messaging tested
+- Client/hub management tested
+- JWT token authentication via query parameter tested
 
 ## 📄 License
 
