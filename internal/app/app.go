@@ -11,6 +11,7 @@ import (
 	"huddle/internal/conversation"
 	"huddle/internal/friend"
 	"huddle/internal/health"
+	"huddle/internal/message"
 	"huddle/internal/middleware"
 	"huddle/internal/user"
 	"huddle/pkg/logger"
@@ -70,6 +71,13 @@ func setupRoutes(router *gin.Engine) {
 	conversationService := conversation.NewService(conversationRepo)
 	conversationHandler := conversation.NewHandler(conversationService)
 	logger.Info("Conversation module initialized successfully")
+
+	// Initialize message module
+	logger.Info("Initializing message module...")
+	messageRepo := message.NewRepository()
+	messageService := message.NewService(messageRepo)
+	messageHandler := message.NewHandler(messageService)
+	logger.Info("Message module initialized successfully")
 	
 	// API routes
 	api := router.Group("/api")
@@ -92,6 +100,11 @@ func setupRoutes(router *gin.Engine) {
 		logger.Info("Setting up conversation routes...")
 		conversation.SetupRoutes(api, conversationHandler)
 		logger.Info("Conversation routes setup completed")
+
+		// Message routes
+		logger.Info("Setting up message routes...")
+		message.SetupRoutes(api, messageHandler)
+		logger.Info("Message routes setup completed")
 	}
 
 	// Root route

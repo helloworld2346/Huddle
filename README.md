@@ -41,13 +41,13 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 
 ### 💬 Chat Features
 
-- [ ] **Chat 1-1**: Tin nhắn riêng tư giữa 2 người
-- [ ] **Group Chat**: Chat nhóm với nhiều thành viên
-- [ ] **Real-time messaging**: WebSocket cho tin nhắn tức thì
-- [ ] **Message history**: Lưu trữ và tìm kiếm tin nhắn
-- [ ] **Message reactions**: Like, heart, emoji reactions
-- [ ] **Read receipts**: Hiển thị trạng thái đã đọc
-- [ ] **Typing indicators**: Hiển thị đang gõ
+- [x] **Chat 1-1**: Tin nhắn riêng tư giữa 2 người ✅
+- [x] **Group Chat**: Chat nhóm với nhiều thành viên ✅
+- [x] **Message history**: Lưu trữ và tìm kiếm tin nhắn ✅
+- [x] **Message reactions**: Like, heart, emoji reactions ✅
+- [x] **Read receipts**: Hiển thị trạng thái đã đọc (conversation level) ✅
+- [ ] **Real-time messaging**: WebSocket cho tin nhắn tức thì ⏳
+- [ ] **Typing indicators**: Hiển thị đang gõ ⏳
 
 ### 📁 File Sharing
 
@@ -92,18 +92,32 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 
 ### Database Schema
 
-- **Users**: Thông tin người dùng ✅
-- **Sessions**: Phiên đăng nhập ✅
-- **Password Resets**: Token reset mật khẩu ✅
-- **User Activities**: Log hoạt động người dùng ✅
-- **Friend Requests**: Lời mời kết bạn ✅
-- **Friendships**: Mối quan hệ bạn bè ✅
-- **Blocked Users**: Người dùng bị chặn ✅
-- **Conversations**: Cuộc hội thoại ⏳
-- **Messages**: Tin nhắn ⏳
-- **Groups**: Thông tin nhóm ⏳
-- **Group Members**: Thành viên nhóm ⏳
-- **Message Reactions**: Phản ứng tin nhắn ⏳
+#### ✅ **Core Tables**
+
+- **Users**: Thông tin người dùng, profiles, settings
+- **Sessions**: Phiên đăng nhập và token management
+- **Password Resets**: Token reset mật khẩu
+- **User Activities**: Log hoạt động người dùng
+
+#### ✅ **Friend System Tables**
+
+- **Friend Requests**: Lời mời kết bạn (pending, accepted, rejected, cancelled)
+- **Friendships**: Mối quan hệ bạn bè (bidirectional)
+- **Blocked Users**: Người dùng bị chặn
+
+#### ✅ **Chat System Tables**
+
+- **Conversations**: Cuộc hội thoại (direct, group)
+- **Conversation Participants**: Thành viên conversation với roles (admin, member)
+- **Messages**: Tin nhắn (text, image, file, system)
+- **Message Reactions**: Phản ứng tin nhắn (like, love, haha, wow, sad, angry)
+- **Message Reads**: Trạng thái đã đọc tin nhắn (future enhancement)
+
+#### ⏳ **Future Tables**
+
+- **Groups**: Thông tin nhóm (separate from conversations)
+- **Group Members**: Thành viên nhóm
+- **Files**: File metadata cho MinIO integration
 
 ## 📁 Cấu trúc dự án
 
@@ -137,14 +151,14 @@ huddle/
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── conversation/               # Conversation management ⏳
+│   │   ├── conversation/               # Conversation management ✅
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── message/                    # Message system ⏳
+│   │   ├── message/                    # Message system ✅
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
@@ -224,11 +238,11 @@ huddle/
 
 ### 🚀 **Current Status (August 2025)**
 
-**✅ Phase 1 & 2 COMPLETED** - Core infrastructure và authentication system đã hoàn thành 100%
+**✅ Phase 1, 2 & 3 COMPLETED** - Core infrastructure, authentication system, và chat system đã hoàn thành 100%
 
-**🎯 Next Target**: Message System với WebSocket (Phase 3)
+**🎯 Next Target**: WebSocket Hub cho real-time messaging (Phase 4)
 
-**📊 Progress**: 65% of total project (Core features + Friend System + Conversation System ready)
+**📊 Progress**: 85% of total project (Core features + Friend System + Conversation System + Message System ready)
 
 ### ✅ **Đã hoàn thành (Phase 1 - Foundation)**
 
@@ -295,16 +309,28 @@ huddle/
 - [x] **Conversation Management** - Create, list, update, delete conversations
 - [x] **Participant Management** - Add, remove, leave conversations
 - [x] **Smart Admin Transfer** - Hybrid admin leave logic with auto-promote
-- [x] **Database Schema** - conversations, conversation_participants, messages, message_reactions
+- [x] **Database Schema** - conversations, conversation_participants, messages, message_reactions, message_reads
 - [x] **API Endpoints** - Complete conversation system APIs
 - [x] **Business Logic** - Admin validation, access control, auto-promotion
 - [x] **Testing** - All success and error cases tested
 
-### ⏳ **Đang thực hiện (Phase 3 - Message System)**
+### ✅ **Đã hoàn thành (Phase 3 - Message System)**
 
-- [ ] **Message System** - Send, receive, store messages
+- [x] **Message CRUD** - Create, read, update, delete messages
+- [x] **Message Reactions** - Add/remove reactions (like, love, haha, wow, sad, angry)
+- [x] **Message Search** - Search messages by content
+- [x] **Message History** - Retrieve chat history with pagination
+- [x] **Access Control** - Only conversation participants can access messages
+- [x] **Message Validation** - Sender validation, content validation
+- [x] **Database Schema** - messages, message_reactions, message_reads tables
+- [x] **API Endpoints** - Complete message system APIs
+- [x] **Testing** - All message features tested successfully
+
+### ⏳ **Đang thực hiện (Phase 4 - Real-time Features)**
+
 - [ ] **WebSocket Hub** - Real-time communication
-- [ ] **Message History** - Retrieve chat history
+- [ ] **Real-time messaging** - Instant message delivery
+- [ ] **Online/offline status** - User presence tracking
 
 #### **File Sharing:**
 
@@ -313,6 +339,21 @@ huddle/
 - [ ] Image preview
 
 ### 📋 **Còn lại (Phase 4-5)**
+
+#### **Real-time Features:**
+
+- [ ] WebSocket Hub implementation
+- [ ] Real-time message delivery
+- [ ] Online/offline status
+- [ ] Typing indicators
+- [ ] Read receipts (message level)
+
+#### **File Sharing:**
+
+- [ ] MinIO integration
+- [ ] File upload/download
+- [ ] Image preview
+- [ ] Avatar upload
 
 #### **Frontend:**
 
@@ -371,7 +412,7 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 
 - **Golang** (1.24.6) - Ngôn ngữ lập trình chính
 - **Gin** (v1.10.1) - HTTP web framework
-- **Gorilla WebSocket** - Real-time communication ⏳
+- **Gorilla WebSocket** - Real-time communication (ready for implementation)
 - **GORM** (v1.30.1) - ORM cho database
 - **PostgreSQL** (15-alpine) - Relational database
 - **Redis** (7-alpine) - Cache, session storage, token blacklisting ✅
@@ -644,9 +685,11 @@ make migrate
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Mở Pull Request
 
-## 🧪 Testing & API Examples
+## 📚 API Documentation
 
-### Authentication Flow
+### 🔐 Authentication APIs
+
+#### Authentication Flow
 
 ```bash
 # 1. Register new user
@@ -678,7 +721,7 @@ curl -X POST http://localhost:8080/api/auth/logout \
   -d '{"refresh_token": "YOUR_REFRESH_TOKEN"}'
 ```
 
-### User Management
+### 👥 User Management APIs
 
 ```bash
 # Search users
@@ -703,6 +746,109 @@ curl -X PUT http://localhost:8080/api/users/me/password \
   }'
 ```
 
+### 👥 Friend System APIs
+
+```bash
+# Send friend request
+curl -X POST http://localhost:8080/api/friends/requests \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 123}'
+
+# Accept friend request
+curl -X PUT http://localhost:8080/api/friends/requests/456/accept \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Get friends list
+curl -X GET http://localhost:8080/api/friends \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Block user
+curl -X POST http://localhost:8080/api/friends/block \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 789}'
+```
+
+### 💬 Conversation APIs
+
+```bash
+# Create conversation
+curl -X POST http://localhost:8080/api/conversations \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Group Chat",
+    "type": "group",
+    "participant_ids": [123, 456, 789]
+  }'
+
+# Get conversations
+curl -X GET http://localhost:8080/api/conversations \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Get specific conversation
+curl -X GET http://localhost:8080/api/conversations/10 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Add participant
+curl -X POST http://localhost:8080/api/conversations/10/participants \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id": 999, "role": "member"}'
+
+# Leave conversation
+curl -X POST http://localhost:8080/api/conversations/10/leave \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### 💬 Message APIs
+
+```bash
+# Create message
+curl -X POST http://localhost:8080/api/conversations/10/messages \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Hello everyone!",
+    "message_type": "text"
+  }'
+
+# Get messages
+curl -X GET http://localhost:8080/api/conversations/10/messages \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Get messages before ID
+curl -X GET "http://localhost:8080/api/conversations/10/messages/before?before_id=50&limit=20" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Search messages
+curl -X GET "http://localhost:8080/api/conversations/10/messages/search?q=hello" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Update message
+curl -X PUT http://localhost:8080/api/conversations/10/messages/123 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Updated message"}'
+
+# Delete message
+curl -X DELETE http://localhost:8080/api/conversations/10/messages/123 \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+
+# Add reaction
+curl -X POST http://localhost:8080/api/conversations/10/messages/123/reactions \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"reaction_type": "like"}'
+
+# Remove reaction
+curl -X DELETE http://localhost:8080/api/conversations/10/messages/123/reactions/like \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+## 🧪 Testing & API Examples
+
 ### Security Features
 
 - ✅ **Token Blacklisting**: Immediate revocation after logout
@@ -710,6 +856,46 @@ curl -X PUT http://localhost:8080/api/users/me/password \
 - ✅ **Password Strength**: Validation và hashing
 - ✅ **Session Management**: Database & Redis sessions
 - ✅ **Activity Logging**: Complete audit trail
+
+### 🧪 Testing Results
+
+#### ✅ **Authentication System**
+
+- User registration, login, logout tested
+- JWT token generation and validation working
+- Token blacklisting functional
+- Password reset flow tested
+
+#### ✅ **User Management**
+
+- User CRUD operations tested
+- Profile updates working
+- User search functionality tested
+- Password change tested
+
+#### ✅ **Friend System**
+
+- Friend requests (send, accept, reject, cancel) tested
+- Friendships creation and management tested
+- User blocking/unblocking tested
+- All validation and error cases tested
+
+#### ✅ **Conversation System**
+
+- Conversation creation (direct/group) tested
+- Participant management (add/remove/leave) tested
+- Admin transfer logic tested (hybrid approach)
+- Access control and validation tested
+
+#### ✅ **Message System**
+
+- Message CRUD operations tested
+- Message reactions (add/remove) tested
+- Message search functionality tested
+- Message history and pagination tested
+- Access control (only participants can access) tested
+- Message sender validation tested
+- New participants can see old messages tested
 
 ## 📄 License
 

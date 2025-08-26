@@ -44,17 +44,25 @@ func (s *service) CreateConversation(ctx context.Context, userID uint, req *Crea
 		return nil, err
 	}
 
-	// Add participants
+	// Add creator as admin first (ALWAYS add creator)
+	logger.Info("Adding creator as admin", zap.Uint("conversation_id", conversation.ID), zap.Uint("user_id", userID))
+	creatorParticipant, err := s.repo.AddParticipant(ctx, conversation.ID, userID, ParticipantRoleAdmin)
+	if err != nil {
+		logger.Error("Failed to add creator as participant", zap.Error(err))
+		return nil, err
+	}
+	logger.Info("Creator added successfully", zap.Uint("conversation_id", conversation.ID), zap.Uint("user_id", userID), zap.String("role", creatorParticipant.Role))
+
+	// Add other participants (skip creator if already in list)
 	for _, participantID := range req.ParticipantIDs {
-		role := ParticipantRoleMember
-		if participantID == userID {
-			role = ParticipantRoleAdmin // Creator is admin
-		}
-		
-		_, err := s.repo.AddParticipant(ctx, conversation.ID, participantID, role)
-		if err != nil {
-			logger.Error("Failed to add participant", zap.Error(err))
-			return nil, err
+		if participantID != userID { // Skip if already added as creator
+			logger.Info("Adding participant", zap.Uint("conversation_id", conversation.ID), zap.Uint("user_id", participantID))
+			participant, err := s.repo.AddParticipant(ctx, conversation.ID, participantID, ParticipantRoleMember)
+			if err != nil {
+				logger.Error("Failed to add participant", zap.Error(err))
+				return nil, err
+			}
+			logger.Info("Participant added successfully", zap.Uint("conversation_id", conversation.ID), zap.Uint("user_id", participantID), zap.String("role", participant.Role))
 		}
 	}
 
