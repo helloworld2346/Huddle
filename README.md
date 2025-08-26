@@ -7,6 +7,7 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 - [Tính năng](#-tính-năng)
 - [Kiến trúc hệ thống](#-kiến-trúc-hệ-thống)
 - [Cấu trúc dự án](#-cấu-trúc-dự-án)
+- [Tiến độ phát triển](#-tiến-độ-phát-triển)
 - [Flow hoạt động](#-flow-hoạt-động)
 - [Công nghệ sử dụng](#-công-nghệ-sử-dụng)
 - [Roadmap phát triển](#-roadmap-phát-triển)
@@ -17,52 +18,52 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 
 ### 🔐 Authentication & User Management
 
-- Đăng ký, đăng nhập, đăng xuất
-- JWT token authentication
-- Quản lý profile người dùng
-- Upload avatar
-- Tìm kiếm người dùng
+- [ ] Đăng ký, đăng nhập, đăng xuất
+- [ ] JWT token authentication
+- [ ] Quản lý profile người dùng
+- [ ] Upload avatar
+- [ ] Tìm kiếm người dùng
 
 ### 👥 Friend System
 
-- Gửi lời mời kết bạn
-- Chấp nhận/từ chối lời mời
-- Danh sách bạn bè
-- Chặn/bỏ chặn người dùng
-- Quản lý lời mời kết bạn
+- [ ] Gửi lời mời kết bạn
+- [ ] Chấp nhận/từ chối lời mời
+- [ ] Danh sách bạn bè
+- [ ] Chặn/bỏ chặn người dùng
+- [ ] Quản lý lời mời kết bạn
 
 ### 💬 Chat Features
 
-- **Chat 1-1**: Tin nhắn riêng tư giữa 2 người
-- **Group Chat**: Chat nhóm với nhiều thành viên
-- **Real-time messaging**: WebSocket cho tin nhắn tức thì
-- **Message history**: Lưu trữ và tìm kiếm tin nhắn
-- **Message reactions**: Like, heart, emoji reactions
-- **Read receipts**: Hiển thị trạng thái đã đọc
-- **Typing indicators**: Hiển thị đang gõ
+- [ ] **Chat 1-1**: Tin nhắn riêng tư giữa 2 người
+- [ ] **Group Chat**: Chat nhóm với nhiều thành viên
+- [ ] **Real-time messaging**: WebSocket cho tin nhắn tức thì
+- [ ] **Message history**: Lưu trữ và tìm kiếm tin nhắn
+- [ ] **Message reactions**: Like, heart, emoji reactions
+- [ ] **Read receipts**: Hiển thị trạng thái đã đọc
+- [ ] **Typing indicators**: Hiển thị đang gõ
 
 ### 📁 File Sharing
 
-- Upload và chia sẻ file
-- Hỗ trợ nhiều định dạng file
-- Lưu trữ file trên MinIO
-- Preview hình ảnh
-- Download file
+- [ ] Upload và chia sẻ file
+- [ ] Hỗ trợ nhiều định dạng file
+- [ ] Lưu trữ file trên MinIO
+- [ ] Preview hình ảnh
+- [ ] Download file
 
 ### 🏢 Group Management
 
-- Tạo nhóm chat
-- Thêm/xóa thành viên
-- Phân quyền admin/member
-- Quản lý thông tin nhóm
-- Avatar nhóm
+- [ ] Tạo nhóm chat
+- [ ] Thêm/xóa thành viên
+- [ ] Phân quyền admin/member
+- [ ] Quản lý thông tin nhóm
+- [ ] Avatar nhóm
 
 ### 🔔 Notifications
 
-- Push notifications
-- Thông báo tin nhắn mới
-- Thông báo lời mời kết bạn
-- Online/offline status
+- [ ] Push notifications
+- [ ] Thông báo tin nhắn mới
+- [ ] Thông báo lời mời kết bạn
+- [ ] Online/offline status
 
 ## 🏗️ Kiến trúc hệ thống
 
@@ -102,30 +103,32 @@ huddle/
 ├── backend/
 │   ├── cmd/
 │   │   └── server/
-│   │       └── main.go                 # Entry point
+│   │       └── main.go                 # Entry point ✅
 │   ├── internal/
-│   │   ├── auth/                       # Authentication module
+│   │   ├── app/                        # App setup ✅
+│   │   │   └── app.go
+│   │   ├── auth/                       # Authentication module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── user/                       # User management module
+│   │   ├── user/                       # User management module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── friend/                     # Friend system module
+│   │   ├── friend/                     # Friend system module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── chat/                       # Chat module
+│   │   ├── chat/                       # Chat module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
@@ -133,14 +136,14 @@ huddle/
 │   │   │   ├── websocket.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── group/                      # Group management module
+│   │   ├── group/                      # Group management module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── file/                       # File handling module
+│   │   ├── file/                       # File handling module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
@@ -148,46 +151,126 @@ huddle/
 │   │   │   ├── minio.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── database/                   # Database connection
-│   │   │   ├── connection.go
-│   │   │   ├── migrations.go
-│   │   │   └── models.go
-│   │   ├── middleware/                 # HTTP middleware
-│   │   │   ├── auth.go
+│   │   ├── health/                     # Health check ✅
+│   │   │   ├── handler.go
+│   │   │   └── routes.go
+│   │   ├── database/                   # Database connection ✅
+│   │   │   └── connection.go
+│   │   ├── middleware/                 # HTTP middleware ✅
 │   │   │   ├── cors.go
-│   │   │   ├── logger.go
-│   │   │   └── rate_limit.go
-│   │   └── routes/                     # Route aggregation
-│   │       └── routes.go
+│   │   │   └── logger.go
+│   │   └── config/                     # Configuration ✅
+│   │       ├── config.go
+│   │       ├── redis.go
+│   │       └── app.env
 │   ├── pkg/
-│   │   ├── utils/                      # Utility functions
+│   │   ├── auth/                       # Authentication utilities ✅
 │   │   │   ├── jwt.go
-│   │   │   ├── password.go
-│   │   │   ├── response.go
-│   │   │   └── validator.go
-│   │   └── config/                     # Configuration
-│   │       └── config.go
-│   ├── migrations/                     # Database migrations
+│   │   │   └── password.go
+│   │   ├── logger/                     # Structured logging ✅
+│   │   │   └── logger.go
+│   │   ├── utils/                      # Common utilities ✅
+│   │   │   └── response.go
+│   │   └── validation/                 # Request validation ✅
+│   │       └── validator.go
+│   ├── migrations/                     # Database migrations ✅
 │   │   ├── 001_initial_schema.sql
-│   │   ├── 002_add_friendship.sql
-│   │   └── 003_add_file_storage.sql
+│   │   └── 002_auth_schema.sql
 │   ├── go.mod
 │   └── go.sum
-├── frontend/
+├── frontend/                           # ⏳ Chưa implement
 │   ├── src/
-│   │   ├── components/                 # React components
-│   │   ├── pages/                      # Page components
-│   │   ├── services/                   # API services
-│   │   ├── store/                      # State management
-│   │   └── utils/                      # Frontend utilities
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── store/
+│   │   └── utils/
 │   ├── public/
 │   ├── package.json
 │   └── README.md
-├── docker-compose.yml                  # Docker setup
-├── Dockerfile.backend
-├── Dockerfile.frontend
+├── docker-compose.yml                  # Docker setup ✅
+├── Dockerfile.backend                  # ⏳ Chưa tạo
+├── Dockerfile.frontend                 # ⏳ Chưa tạo
+├── Makefile                           # Development commands ✅
+├── .gitignore                         # Git ignore ✅
+├── SETUP.md                           # Setup guide ✅
 └── README.md
 ```
+
+## 🎯 Tiến độ phát triển
+
+### ✅ **Đã hoàn thành (Phase 1 - Foundation)**
+
+#### **Core Infrastructure:**
+
+- [x] **Project Structure** - Cấu trúc thư mục modular
+- [x] **Go Modules** - Dependencies management
+- [x] **Configuration** - Environment variables với godotenv
+- [x] **Docker Setup** - PostgreSQL và Redis containers
+- [x] **Database Schema** - Initial migration với users và sessions
+- [x] **Database Connection** - PostgreSQL với GORM
+- [x] **Redis Connection** - Cache và session storage
+
+#### **Web Framework:**
+
+- [x] **Gin Server** - HTTP web framework
+- [x] **CORS Middleware** - Cross-origin support
+- [x] **Structured Logging** - JSON logging với Zap
+- [x] **Request Logging** - Performance metrics
+- [x] **Error Handling** - Graceful shutdown
+- [x] **Health Check API** - `/api/health`, `/api/health/ping`
+
+#### **Development Tools:**
+
+- [x] **Makefile** - Development commands
+- [x] **Git Setup** - Version control
+- [x] **Documentation** - README và SETUP guides
+
+### ⏳ **Đang thực hiện (Phase 2 - Core Features)**
+
+#### **Authentication System:**
+
+- [x] **JWT Utilities** - Token generation, validation, refresh
+- [x] **Password Utilities** - Hashing, validation, strength check
+- [x] **Authentication Middleware** - JWT validation, user context
+- [x] **Request Validation** - Input validation utilities
+- [x] **Database Schema** - Auth tables và indexes
+- [ ] User registration và login endpoints
+- [ ] Session management với Redis
+
+#### **User Management:**
+
+- [ ] User CRUD operations
+- [ ] Profile management
+- [ ] Avatar upload
+- [ ] User search
+
+### 📋 **Còn lại (Phase 3-5)**
+
+#### **Friend System:**
+
+- [ ] Friend requests
+- [ ] Friend list management
+- [ ] User blocking
+
+#### **Chat Features:**
+
+- [ ] WebSocket setup
+- [ ] Direct messaging
+- [ ] Group messaging
+- [ ] Message history
+
+#### **File Sharing:**
+
+- [ ] MinIO integration
+- [ ] File upload/download
+- [ ] Image preview
+
+#### **Frontend:**
+
+- [ ] React/Vue.js setup
+- [ ] UI components
+- [ ] Real-time chat interface
 
 ## 🔄 Flow hoạt động
 
@@ -229,19 +312,20 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 
 ## 🛠️ Công nghệ sử dụng
 
-### Backend
+### Backend ✅
 
-- **Golang** (1.21+) - Ngôn ngữ lập trình chính
-- **Gin** - HTTP web framework
-- **Gorilla WebSocket** - Real-time communication
-- **GORM** - ORM cho database
-- **PostgreSQL** - Relational database
-- **Redis** - Cache và session storage
-- **MinIO** - Object storage cho file
-- **JWT** - Authentication tokens
-- **bcrypt** - Password hashing
+- **Golang** (1.24.6) - Ngôn ngữ lập trình chính
+- **Gin** (v1.10.1) - HTTP web framework
+- **Gorilla WebSocket** - Real-time communication ⏳
+- **GORM** (v1.30.1) - ORM cho database
+- **PostgreSQL** (15-alpine) - Relational database
+- **Redis** (7-alpine) - Cache và session storage
+- **MinIO** - Object storage cho file ⏳
+- **JWT** - Authentication tokens ⏳
+- **bcrypt** - Password hashing ⏳
+- **Zap** (v1.27.0) - Structured logging
 
-### Frontend
+### Frontend ⏳
 
 - **React** (18+) - UI framework
 - **TypeScript** - Type safety
@@ -251,61 +335,61 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 - **React Router** - Client-side routing
 - **Zustand** - State management
 
-### DevOps & Tools
+### DevOps & Tools ✅
 
 - **Docker** - Containerization
 - **Docker Compose** - Multi-container setup
 - **Git** - Version control
 - **Postman** - API testing
-- **pgAdmin** - Database management
+- **TablePlus** - Database management
 
 ## 🗺️ Roadmap phát triển
 
-### Phase 1: Foundation (2-3 tuần)
+### ✅ Phase 1: Foundation (Đã hoàn thành)
 
-**Mục tiêu**: Setup cơ bản và authentication
+**Mục tiêu**: Setup cơ bản và infrastructure
 
-- [ ] Setup project structure
-- [ ] Database schema và migrations
+- [x] Setup project structure
+- [x] Database schema và migrations
+- [x] Gin server với middleware
+- [x] Structured logging với Zap
+- [x] Health check API
+- [x] Docker setup cho PostgreSQL và Redis
+- [x] Configuration management
+
+### ⏳ Phase 2: Core Features (Đang thực hiện)
+
+**Mục tiêu**: Authentication và user management
+
 - [ ] User authentication (register/login)
+- [ ] JWT token management
+- [ ] User profile management
 - [ ] Basic WebSocket connection
-- [ ] Simple chat interface
-- [ ] Docker setup
+- [ ] File upload với MinIO
 
-### Phase 2: Core Features (2-3 tuần)
+### 📋 Phase 3: Advanced Features (Chưa bắt đầu)
 
-**Mục tiêu**: Tính năng chat cơ bản
+**Mục tiêu**: Chat và friend system
 
 - [ ] Friend system (request, accept, reject)
 - [ ] Direct messaging
-- [ ] Message history
-- [ ] Online status
-- [ ] Basic UI/UX
-- [ ] File upload với MinIO
-
-### Phase 3: Advanced Features (2-3 tuần)
-
-**Mục tiêu**: Tính năng nâng cao
-
 - [ ] Group creation và management
-- [ ] Group messaging
+- [ ] Message history
 - [ ] Message reactions
-- [ ] Push notifications
-- [ ] Search functionality
-- [ ] User profiles và avatars
+- [ ] Online status
 
-### Phase 4: Polish & Optimization (1-2 tuần)
+### 📋 Phase 4: Polish & Optimization (Chưa bắt đầu)
 
 **Mục tiêu**: Hoàn thiện và tối ưu
 
-- [ ] Error handling
+- [ ] Push notifications
+- [ ] Search functionality
 - [ ] Performance optimization
 - [ ] Security improvements
 - [ ] Testing (unit, integration)
-- [ ] Documentation
-- [ ] Deployment setup
+- [ ] Frontend development
 
-### Phase 5: Enhancement (1-2 tuần)
+### 📋 Phase 5: Enhancement (Chưa bắt đầu)
 
 **Mục tiêu**: Tính năng bổ sung
 
@@ -320,8 +404,7 @@ Client → Connect WebSocket → Authenticate → Join user room → Listen for 
 
 ### Yêu cầu hệ thống
 
-- Go 1.21+
-- Node.js 18+
+- Go 1.24.6+
 - Docker & Docker Compose
 - PostgreSQL 15+
 - Redis 7+
@@ -334,12 +417,17 @@ git clone https://github.com/your-username/huddle.git
 cd huddle
 
 # Chạy với Docker Compose
-docker-compose up -d
+make docker-up
+
+# Download dependencies
+make deps
+
+# Chạy ứng dụng
+make run
 
 # Truy cập ứng dụng
-# Frontend: http://localhost:3000
 # Backend API: http://localhost:8080
-# MinIO Console: http://localhost:9001
+# Health Check: http://localhost:8080/api/health
 ```
 
 ### Development Setup
@@ -350,58 +438,131 @@ cd backend
 go mod download
 go run cmd/server/main.go
 
-# Frontend
-cd frontend
-npm install
-npm start
+# Hoặc sử dụng Makefile
+make dev  # docker-up + deps + run
 ```
 
 ## 📚 API Documentation
 
-### Authentication Endpoints
+### ✅ Available Endpoints
+
+#### Health Check Endpoints
+
+- `GET /` - Welcome page
+- `GET /api/health` - Health check với database và Redis status
+- `GET /api/health/ping` - Simple ping endpoint
+
+#### Example Responses
+
+**Health Check:**
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2025-08-26T14:26:08.897371+07:00",
+  "services": {
+    "database": "up",
+    "redis": "up"
+  },
+  "version": "1.0.0"
+}
+```
+
+**Welcome Page:**
+
+```json
+{
+  "message": "Welcome to Huddle API",
+  "version": "1.0.0",
+  "docs": "/api/health"
+}
+```
+
+### ⏳ Planned Endpoints
+
+#### Authentication Endpoints
 
 - `POST /api/auth/register` - Đăng ký
 - `POST /api/auth/login` - Đăng nhập
 - `POST /api/auth/logout` - Đăng xuất
 - `GET /api/auth/me` - Lấy thông tin user hiện tại
 
-### User Endpoints
+#### User Endpoints
 
 - `GET /api/users` - Lấy danh sách users
 - `GET /api/users/:id` - Lấy thông tin user
 - `PUT /api/users/profile` - Cập nhật profile
 - `POST /api/users/avatar` - Upload avatar
 
-### Friend Endpoints
+#### Friend Endpoints
 
 - `GET /api/friends` - Lấy danh sách bạn bè
 - `POST /api/friends/request/:user_id` - Gửi lời mời kết bạn
 - `PUT /api/friends/request/:request_id` - Phản hồi lời mời
 - `GET /api/friends/requests` - Lấy danh sách lời mời
 
-### Chat Endpoints
+#### Chat Endpoints
 
 - `GET /api/messages/direct/:user_id` - Lấy tin nhắn 1-1
 - `POST /api/messages/direct/:user_id` - Gửi tin nhắn 1-1
 - `GET /api/groups/:id/messages` - Lấy tin nhắn nhóm
 - `POST /api/groups/:id/messages` - Gửi tin nhắn nhóm
 
-### Group Endpoints
-
-- `GET /api/groups` - Lấy danh sách nhóm
-- `POST /api/groups` - Tạo nhóm mới
-- `POST /api/groups/:id/members` - Thêm thành viên
-- `DELETE /api/groups/:id/members/:user_id` - Xóa thành viên
-
-### File Endpoints
-
-- `POST /api/files/upload` - Upload file
-- `GET /api/files/:filename` - Download file
-- `DELETE /api/files/:filename` - Xóa file
-
-### WebSocket
+#### WebSocket
 
 - `WS /ws` - WebSocket connection cho real-time chat
+
+## 🛠️ Development Commands
+
+```bash
+# Xem tất cả lệnh có sẵn
+make help
+
+# Khởi động services
+make docker-up
+
+# Dừng services
+make docker-down
+
+# Xem logs
+make docker-logs
+
+# Download dependencies
+make deps
+
+# Build ứng dụng
+make build
+
+# Chạy ứng dụng
+make run
+
+# Clean build artifacts
+make clean
+
+# Development mode (docker-up + deps + run)
+make dev
+
+# Restart services
+make restart
+```
+
+## 📊 Performance Metrics
+
+### Current Performance
+
+- **Response Time**: ~1ms cho health check
+- **Database Connection**: Pool size 10-100 connections
+- **Redis Connection**: Pool size 10 connections
+- **Memory Usage**: ~28MB cho binary
+- **Logging**: Structured JSON với Zap
+
+### Monitoring
+
+- **Health Check**: Real-time service status
+- **Request Logging**: Method, path, status, latency
+- **Error Logging**: Structured error tracking
+- **Database Logging**: Query performance
+- **Redis Logging**: Operation tracking
 
 ## 🤝 Đóng góp
 
