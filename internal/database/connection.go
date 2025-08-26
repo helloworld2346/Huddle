@@ -2,14 +2,15 @@ package database
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"huddle/internal/config"
+	"huddle/pkg/logger"
 
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -28,16 +29,23 @@ func InitDatabase() error {
 
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: gormlogger.Default.LogMode(gormlogger.Info),
 	})
 
 	if err != nil {
+		logger.Error("Failed to connect to database",
+			zap.String("host", config.Database.Host),
+			zap.Int("port", config.Database.Port),
+			zap.String("database", config.Database.Name),
+			zap.Error(err),
+		)
 		return fmt.Errorf("failed to connect to database: %v", err)
 	}
 
 	// Configure connection pool
 	sqlDB, err := DB.DB()
 	if err != nil {
+		logger.Error("Failed to get underlying sql.DB", zap.Error(err))
 		return fmt.Errorf("failed to get underlying sql.DB: %v", err)
 	}
 
@@ -48,10 +56,15 @@ func InitDatabase() error {
 
 	// Test connection
 	if err := sqlDB.Ping(); err != nil {
+		logger.Error("Failed to ping database", zap.Error(err))
 		return fmt.Errorf("failed to ping database: %v", err)
 	}
 
-	log.Println("✅ Database connected successfully")
+	logger.Info("Database connected successfully",
+		zap.String("host", config.Database.Host),
+		zap.Int("port", config.Database.Port),
+		zap.String("database", config.Database.Name),
+	)
 	return nil
 }
 
@@ -63,9 +76,14 @@ func CloseDatabase() error {
 	if DB != nil {
 		sqlDB, err := DB.DB()
 		if err != nil {
+			logger.Error("Failed to get sql.DB for closing", zap.Error(err))
 			return err
 		}
-		return sqlDB.Close()
+		if err := sqlDB.Close(); err != nil {
+			logger.Error("Failed to close database connection", zap.Error(err))
+			return err
+		}
+		logger.Info("Database connection closed successfully")
 	}
 	return nil
 }

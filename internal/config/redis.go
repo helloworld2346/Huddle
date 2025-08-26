@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"time"
 
+	"huddle/pkg/logger"
+
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 )
 
 var RedisClient *redis.Client
@@ -26,10 +29,19 @@ func InitRedis() error {
 
 	_, err := RedisClient.Ping(ctx).Result()
 	if err != nil {
+		logger.Error("Failed to connect to Redis",
+			zap.String("host", config.Redis.Host),
+			zap.Int("port", config.Redis.Port),
+			zap.Error(err),
+		)
 		return fmt.Errorf("failed to connect to Redis: %v", err)
 	}
 
-	fmt.Println("✅ Redis connected successfully")
+	logger.Info("Redis connected successfully",
+		zap.String("host", config.Redis.Host),
+		zap.Int("port", config.Redis.Port),
+		zap.Int("db", config.Redis.DB),
+	)
 	return nil
 }
 
@@ -39,7 +51,11 @@ func GetRedisClient() *redis.Client {
 
 func CloseRedis() error {
 	if RedisClient != nil {
-		return RedisClient.Close()
+		if err := RedisClient.Close(); err != nil {
+			logger.Error("Failed to close Redis connection", zap.Error(err))
+			return err
+		}
+		logger.Info("Redis connection closed successfully")
 	}
 	return nil
 }

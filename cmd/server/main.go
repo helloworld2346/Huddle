@@ -1,54 +1,85 @@
 package main
 
 import (
-	"log"
+	"context"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
+	"huddle/internal/app"
 	"huddle/internal/config"
 	"huddle/internal/database"
+	"huddle/pkg/logger"
+
+	"go.uber.org/zap"
 )
 
 func main() {
-	log.Println("🚀 Starting Huddle Server...")
+	// Initialize logger
+	if err := logger.InitLogger(); err != nil {
+		panic("Failed to initialize logger: " + err.Error())
+	}
+	defer logger.Sync()
+
+	logger.Info("🚀 Starting Huddle Server...")
 
 	// Load configuration
 	if err := config.Load(); err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		logger.Fatal("Failed to load config", zap.Error(err))
 	}
-	log.Println("✅ Configuration loaded successfully")
+	logger.Info("✅ Configuration loaded successfully")
 
 	// Initialize database
 	if err := database.InitDatabase(); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		logger.Fatal("Failed to initialize database", zap.Error(err))
 	}
 
 	// Initialize Redis
 	if err := config.InitRedis(); err != nil {
-		log.Fatalf("Failed to initialize Redis: %v", err)
+		logger.Fatal("Failed to initialize Redis", zap.Error(err))
 	}
 
-	log.Println("🎉 All services initialized successfully!")
-	log.Println("📊 Database: PostgreSQL connected")
-	log.Println("🔴 Redis: Connected")
-	log.Println("⚙️  Server ready to start...")
+	logger.Info("🎉 All services initialized successfully!")
+	logger.Info("📊 Database: PostgreSQL connected")
+	logger.Info("🔴 Redis: Connected")
+
+	// Create and start app
+	app := app.NewApp()
+	
+	// Start app in a goroutine
+	go func() {
+		if err := app.Start(); err != nil {
+			logger.Error("App error", zap.Error(err))
+		}
+	}()
+
+	logger.Info("⚙️  Server ready to accept requests...")
 
 	// Wait for interrupt signal to gracefully shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("🛑 Shutting down server...")
+	logger.Info("🛑 Shutting down server...")
+
+	// Create context with timeout for shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Shutdown app
+	if err := app.Shutdown(ctx); err != nil {
+		logger.Error("App shutdown error", zap.Error(err))
+	}
 
 	// Close connections
 	if err := database.CloseDatabase(); err != nil {
-		log.Printf("Error closing database: %v", err)
+		logger.Error("Error closing database", zap.Error(err))
 	}
 
 	if err := config.CloseRedis(); err != nil {
-		log.Printf("Error closing Redis: %v", err)
+		logger.Error("Error closing Redis", zap.Error(err))
 	}
 
-	log.Println("✅ Server shutdown complete")
+	logger.Info("✅ Server shutdown complete")
 }
