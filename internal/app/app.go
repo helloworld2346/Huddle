@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"huddle/internal/auth"
 	"huddle/internal/config"
 	"huddle/internal/health"
 	"huddle/internal/middleware"
@@ -49,11 +50,19 @@ func setupRoutes(router *gin.Engine) {
 	userService := user.NewService(userRepo)
 	userHandler := user.NewHandler(userService)
 	
+	// Initialize auth module
+	authRepo := auth.NewRepository()
+	authService := auth.NewService(authRepo)
+	authHandler := auth.NewHandler(authService)
+	
 	// API routes
 	api := router.Group("/api")
 	{
 		// Health check routes (no auth required)
 		health.SetupRoutes(api)
+		
+		// Auth routes
+		auth.SetupRoutes(api, authHandler)
 		
 		// User routes
 		user.SetupRoutes(api, userHandler)

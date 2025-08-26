@@ -32,6 +32,16 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := tokenParts[1]
 
+		// Check if token is blacklisted
+		if auth.IsTokenBlacklisted(c.Request.Context(), tokenString) {
+			logger.Error("Token is blacklisted",
+				zap.String("token", tokenString[:10]+"..."),
+			)
+			utils.UnauthorizedResponse(c, "Token has been revoked")
+			c.Abort()
+			return
+		}
+
 		// Validate token
 		claims, err := auth.ValidateToken(tokenString)
 		if err != nil {

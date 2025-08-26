@@ -10,6 +10,7 @@ import (
 	"huddle/internal/app"
 	"huddle/internal/config"
 	"huddle/internal/database"
+	"huddle/pkg/auth"
 	"huddle/pkg/logger"
 
 	"go.uber.org/zap"
@@ -39,6 +40,9 @@ func main() {
 	if err := config.InitRedis(); err != nil {
 		logger.Fatal("Failed to initialize Redis", zap.Error(err))
 	}
+	
+	// Initialize Auth Redis
+	auth.InitRedis()
 
 	logger.Info("🎉 All services initialized successfully!")
 	logger.Info("📊 Database: PostgreSQL connected")

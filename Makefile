@@ -1,4 +1,4 @@
-.PHONY: help build run clean docker-up docker-down docker-logs deps migrate
+.PHONY: help build run clean docker-up docker-down docker-logs deps migrate migrate-reset migrate-status
 
 # Default target
 help:
@@ -11,7 +11,8 @@ help:
 	@echo "  run           - Run the application"
 	@echo "  clean         - Clean build artifacts"
 	@echo "  migrate       - Run database migrations"
-
+	@echo "  migrate-reset - Reset database and run all migrations"
+	@echo "  migrate-status- Check migration status"
 
 # Docker commands
 docker-up:
@@ -57,6 +58,17 @@ migrate: ## Run database migrations
 	@echo "🗄️  Running database migrations..."
 	@docker exec huddle_postgres psql -U huddle_user -d huddle -c "SELECT 'Migrations completed' as status;"
 	@echo "✅ Migrations completed"
+
+migrate-reset: ## Reset database and run all migrations
+	@echo "🔄 Resetting database and running migrations..."
+	@make docker-down
+	@make docker-up
+	@echo "✅ Database reset and migrations completed"
+
+migrate-status: ## Check migration status
+	@echo "📊 Checking migration status..."
+	@docker exec huddle_postgres psql -U huddle_user -d huddle -c "\dt"
+	@echo "✅ Migration status checked"
 
 # Development helpers
 dev: docker-up deps run
