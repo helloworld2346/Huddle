@@ -28,6 +28,9 @@ func NewHub(wsService *service) *Hub {
 func (h *Hub) Run() {
 	logger.Info("🚀 WebSocket Hub started")
 	
+	// Start connection health checker
+	go h.connectionHealthChecker()
+	
 	for {
 		select {
 		case client := <-h.Register:
@@ -39,6 +42,43 @@ func (h *Hub) Run() {
 		case message := <-h.Broadcast:
 			h.broadcastMessage(message)
 		}
+	}
+}
+
+// connectionHealthChecker checks for stale connections and marks users as offline
+func (h *Hub) connectionHealthChecker() {
+	ticker := time.NewTicker(30 * time.Second) // Check every 30 seconds
+	defer ticker.Stop()
+	
+	for range ticker.C {
+		h.mu.Lock()
+		
+		now := time.Now()
+		staleThreshold := 90 * time.Second // Mark as offline after 90 seconds of no ping
+		
+		for clientID, client := range h.Clients {
+			if now.Sub(client.LastPing) > staleThreshold {
+				logger.Info("Marking client as offline due to stale connection",
+					zap.String("client_id", clientID),
+					zap.Uint("user_id", client.UserID),
+					zap.String("username", client.Username),
+					zap.Duration("last_ping", now.Sub(client.LastPing)))
+				
+				// Mark as offline
+				client.IsOnline = false
+				
+				// Broadcast offline status
+				go h.broadcastUserStatusChange(client.UserID, client.Username, false)
+				
+				// Remove from hub
+				delete(h.Clients, clientID)
+				
+				// Close connection
+				close(client.Send)
+			}
+		}
+		
+		h.mu.Unlock()
 	}
 }
 
@@ -55,6 +95,9 @@ func (h *Hub) registerClient(client *Client) {
 		zap.String("client_id", client.ID),
 		zap.Uint("user_id", client.UserID),
 		zap.String("username", client.Username))
+	
+	// Broadcast online status
+	go h.broadcastUserStatusChange(client.UserID, client.Username, true)
 }
 
 // unregisterClient unregisters a client
@@ -85,6 +128,9 @@ func (h *Hub) unregisterClient(client *Client) {
 		zap.String("client_id", client.ID),
 		zap.Uint("user_id", client.UserID),
 		zap.String("username", client.Username))
+	
+	// Broadcast offline status
+	go h.broadcastUserStatusChange(client.UserID, client.Username, false)
 }
 
 // broadcastMessage broadcasts a message to appropriate clients
@@ -255,4 +301,37 @@ func (h *Hub) validateUserInConversation(ctx context.Context, userID, conversati
 	// Use conversation repository to validate
 	conversationRepo := conversation.NewRepository()
 	return conversationRepo.CheckUserInConversation(ctx, conversationID, userID)
+}
+
+// broadcastUserStatusChange broadcasts user online/offline status to all clients
+func (h *Hub) broadcastUserStatusChange(userID uint, username string, isOnline bool) {
+	var messageType MessageType
+	if isOnline {
+		messageType = MessageTypeUserOnline
+	} else {
+		messageType = MessageTypeUserOffline
+	}
+	
+	data := map[string]interface{}{
+		"user_id":   userID,
+		"username":  username,
+		"is_online": isOnline,
+		"timestamp": time.Now(),
+	}
+	
+	message := &WebSocketMessage{
+		Type:      messageType,
+		Data:      mustMarshalJSON(data),
+		Timestamp: time.Now(),
+		UserID:    userID,
+		Username:  username,
+	}
+	
+	// Broadcast to all clients
+	h.broadcastToAll(mustMarshalJSON(message))
+	
+	logger.Info("Broadcasted user status change",
+		zap.Uint("user_id", userID),
+		zap.String("username", username),
+		zap.Bool("is_online", isOnline))
 }

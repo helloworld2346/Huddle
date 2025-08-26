@@ -60,18 +60,19 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 
 ### 🏢 Group Management
 
-- [ ] Tạo nhóm chat
-- [ ] Thêm/xóa thành viên
-- [ ] Phân quyền admin/member
-- [ ] Quản lý thông tin nhóm
-- [ ] Avatar nhóm
+- [x] **Tạo nhóm chat** - Create group conversations ✅
+- [x] **Thêm/xóa thành viên** - Add/remove participants ✅
+- [x] **Phân quyền admin/member** - Role-based permissions ✅
+- [x] **Quản lý thông tin nhóm** - Update conversation details ✅
+- [ ] Avatar nhóm (MinIO integration pending)
 
 ### 🔔 Notifications
 
-- [ ] Push notifications
-- [ ] Thông báo tin nhắn mới
-- [ ] Thông báo lời mời kết bạn
-- [ ] Online/offline status
+- [x] **Real-time notifications** - WebSocket-based notifications ✅
+- [x] **Thông báo tin nhắn mới** - New message notifications ✅
+- [x] **Thông báo lời mời kết bạn** - Friend request notifications ✅
+- [x] **Online/offline status** - User presence notifications ✅
+- [ ] Push notifications (Mobile app pending)
 
 ## 🏗️ Kiến trúc hệ thống
 
@@ -113,6 +114,53 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 - **Messages**: Tin nhắn (text, image, file, system)
 - **Message Reactions**: Phản ứng tin nhắn (like, love, haha, wow, sad, angry)
 - **Message Reads**: Trạng thái đã đọc tin nhắn (future enhancement)
+
+#### ✅ **Database Schema Details**
+
+**Users Table:**
+
+- `id`, `username`, `email`, `display_name`, `bio`, `avatar`
+- `is_public`, `last_login`, `login_attempts`, `locked_until`
+- `created_at`, `updated_at`, `deleted_at`
+
+**Sessions Table:**
+
+- `id`, `user_id`, `token`, `expires_at`, `created_at`
+
+**Friend Requests Table:**
+
+- `id`, `sender_id`, `receiver_id`, `status`, `created_at`, `updated_at`
+
+**Friendships Table:**
+
+- `id`, `user_id`, `friend_id`, `created_at`
+
+**Blocked Users Table:**
+
+- `id`, `blocker_id`, `blocked_id`, `created_at`
+
+**Conversations Table:**
+
+- `id`, `name`, `type`, `created_by`, `created_at`, `updated_at`
+
+**Conversation Participants Table:**
+
+- `id`, `conversation_id`, `user_id`, `role`, `joined_at`, `last_read_at`
+
+**Messages Table:**
+
+- `id`, `conversation_id`, `sender_id`, `content`, `message_type`
+- `file_url`, `file_name`, `file_size`, `reply_to_id`
+- `is_edited`, `edited_at`, `created_at`, `updated_at`
+
+**Message Reactions Table:**
+
+- `id`, `message_id`, `user_id`, `reaction_type`, `created_at`
+- Unique constraint: `(message_id, user_id, reaction_type)`
+
+**Message Reads Table:**
+
+- `id`, `message_id`, `user_id`, `read_at` (future enhancement)
 
 #### ⏳ **Future Tables**
 
@@ -166,11 +214,14 @@ huddle/
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── websocket/                  # WebSocket hub ⏳
+│   │   ├── websocket/                  # WebSocket hub ✅
 │   │   │   ├── hub.go
 │   │   │   ├── client.go
+│   │   │   ├── service.go
 │   │   │   ├── handler.go
-│   │   │   └── routes.go
+│   │   │   ├── routes.go
+│   │   │   ├── model.go
+│   │   │   └── interface.go
 │   │   ├── group/                      # Group management module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
@@ -230,6 +281,7 @@ huddle/
 ├── Dockerfile.backend                  # ⏳ Chưa tạo
 ├── Dockerfile.frontend                 # ⏳ Chưa tạo
 ├── Makefile                           # Development commands ✅
+├── test_websocket.html                # WebSocket testing tool ✅
 ├── .gitignore                         # Git ignore ✅
 ├── SETUP.md                           # Setup guide ✅
 └── README.md
@@ -243,7 +295,7 @@ huddle/
 
 **🎯 Next Target**: File sharing với MinIO (Phase 5)
 
-**📊 Progress**: 95% of total project (Core features + Friend System + Conversation System + Message System + WebSocket Hub ready)
+**📊 Progress**: 98% of total project (Core features + Friend System + Conversation System + Message System + WebSocket Hub + Online/Offline System ready)
 
 ### ✅ **Đã hoàn thành (Phase 1 - Foundation)**
 
@@ -327,25 +379,32 @@ huddle/
 - [x] **API Endpoints** - Complete message system APIs
 - [x] **Testing** - All message features tested successfully
 
-### ⏳ **Đang thực hiện (Phase 4 - Real-time Features)**
+### ✅ **Đã hoàn thành (Phase 4 - Real-time Features)**
 
-- [ ] **WebSocket Hub** - Real-time communication
-- [ ] **Real-time messaging** - Instant message delivery
-- [ ] **Online/offline status** - User presence tracking
+- [x] **WebSocket Hub** - Real-time communication ✅
+- [x] **Real-time messaging** - Instant message delivery ✅
+- [x] **Online/offline status** - User presence tracking ✅
+- [x] **Typing indicators** - Real-time typing status ✅
+- [x] **Connection health checker** - Automatic offline detection ✅
+- [x] **Room-based messaging** - Conversation-specific broadcasting ✅
+- [x] **JWT authentication** - Secure WebSocket connections ✅
+
+### ⏳ **Đang thực hiện (Phase 5 - File Sharing)**
 
 #### **File Sharing:**
 
 - [ ] MinIO integration
 - [ ] File upload/download
 - [ ] Image preview
+- [ ] Avatar upload
 
-### 📋 **Còn lại (Phase 4-5)**
+### 📋 **Còn lại (Phase 5)**
 
-#### **Real-time Features:**
+#### **Advanced Features:**
 
-- [ ] WebSocket Hub implementation
-- [ ] Real-time message delivery
-- [ ] Online/offline status
+- [ ] File sharing với MinIO
+- [ ] Frontend development (React/Vue.js)
+- [ ] Mobile app (optional)
 - [ ] Typing indicators
 - [ ] Read receipts (message level)
 
@@ -956,7 +1015,30 @@ curl -X GET http://localhost:8080/api/ws/users/123/status \
   },
   "timestamp": "2025-08-26T14:00:00.000Z"
 }
-```
+
+// User online status
+{
+  "type": "user_online",
+  "data": {
+    "user_id": 456,
+    "username": "testuser1",
+    "is_online": true,
+    "timestamp": "2025-08-26T14:00:00.000Z"
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
+
+// User offline status
+{
+  "type": "user_offline",
+  "data": {
+    "user_id": 456,
+    "username": "testuser1",
+    "is_online": false,
+    "timestamp": "2025-08-26T14:00:00.000Z"
+  },
+  "timestamp": "2025-08-26T14:00:00.000Z"
+}
 
 ## 🧪 Testing & API Examples
 
@@ -1007,6 +1089,9 @@ curl -X GET http://localhost:8080/api/ws/users/123/status \
 - Access control (only participants can access) tested
 - Message sender validation tested
 - New participants can see old messages tested
+- Multiple users can add same reaction type tested
+- One user per reaction type (Facebook-style) tested
+- Reaction persistence in database tested
 
 #### ✅ **WebSocket System**
 
@@ -1017,6 +1102,8 @@ curl -X GET http://localhost:8080/api/ws/users/123/status \
 - Room-based messaging tested
 - Client/hub management tested
 - JWT token authentication via query parameter tested
+- Connection health checker tested (automatic offline detection)
+- Real-time status broadcasting tested (online/offline events)
 
 ## 📄 License
 
@@ -1029,3 +1116,4 @@ Dự án này được phát hành dưới MIT License - xem file [LICENSE](LICE
 ---
 
 ⭐ Nếu dự án này hữu ích, hãy cho một star!
+```

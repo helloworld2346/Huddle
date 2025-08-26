@@ -54,6 +54,11 @@
         background-color: #d1ecf1;
         border-left: 3px solid #17a2b8;
       }
+      .status {
+        background-color: #f8f9fa;
+        border-left: 3px solid #6c757d;
+        font-weight: bold;
+      }
       .error {
         background-color: #f8d7da;
         color: #721c24;
@@ -255,6 +260,20 @@
                     "system"
                   );
                   break;
+                case "user_online":
+                  logMessage(
+                    `🟢 ${message.username} is now online`,
+                    false,
+                    "status"
+                  );
+                  break;
+                case "user_offline":
+                  logMessage(
+                    `🔴 ${message.username} is now offline`,
+                    false,
+                    "status"
+                  );
+                  break;
                 default:
                   logMessage(
                     "📨 Received: " + JSON.stringify(message, null, 2)
@@ -447,6 +466,7 @@
         if (type === "message") className = "message new-message";
         if (type === "typing") className = "message typing";
         if (type === "system") className = "message system";
+        if (type === "status") className = "message status";
 
         logEntry.className = className;
         logEntry.innerHTML = `<strong>[${timestamp}]</strong> ${message}`;
