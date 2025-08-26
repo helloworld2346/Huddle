@@ -9,6 +9,7 @@ import (
 	"huddle/internal/auth"
 	"huddle/internal/config"
 	"huddle/internal/conversation"
+	"huddle/internal/file"
 	"huddle/internal/friend"
 	"huddle/internal/health"
 	"huddle/internal/message"
@@ -108,15 +109,23 @@ func setupRoutes(router *gin.Engine) {
 		conversation.SetupRoutes(api, conversationHandler)
 		logger.Info("Conversation routes setup completed")
 
-		// Message routes
-		logger.Info("Setting up message routes...")
-		message.SetupRoutes(api, messageHandler)
-		logger.Info("Message routes setup completed")
+			// Message routes
+	logger.Info("Setting up message routes...")
+	message.SetupRoutes(api, messageHandler)
+	logger.Info("Message routes setup completed")
 
-		// WebSocket routes
-		logger.Info("Setting up WebSocket routes...")
-		websocket.SetupRoutes(api, wsHandler)
-		logger.Info("WebSocket routes setup completed")
+	// File routes
+	logger.Info("Setting up file routes...")
+	fileRepo := file.NewRepository()
+	fileService := file.NewService(fileRepo)
+	fileHandler := file.NewHandler(fileService)
+	file.SetupRoutes(api, fileHandler)
+	logger.Info("File routes setup completed")
+
+	// WebSocket routes
+	logger.Info("Setting up WebSocket routes...")
+	websocket.SetupRoutes(api, wsHandler)
+	logger.Info("WebSocket routes setup completed")
 	}
 
 	// Start WebSocket hub

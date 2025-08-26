@@ -47,6 +47,7 @@ func main() {
 	logger.Info("🎉 All services initialized successfully!")
 	logger.Info("📊 Database: PostgreSQL connected")
 	logger.Info("🔴 Redis: Connected")
+	logger.Info("🔴 MinIO: Connected")
 
 	// Create and start app
 	app := app.NewApp()

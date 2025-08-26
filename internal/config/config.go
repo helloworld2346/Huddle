@@ -14,6 +14,7 @@ type Config struct {
 	Redis    RedisConfig
 	JWT      JWTConfig
 	Server   ServerConfig
+	MinIO    MinIOConfig
 }
 
 type DatabaseConfig struct {
@@ -40,6 +41,14 @@ type JWTConfig struct {
 type ServerConfig struct {
 	Port int
 	Host string
+}
+
+type MinIOConfig struct {
+	Endpoint        string
+	AccessKeyID     string
+	SecretAccessKey string
+	BucketName      string
+	UseSSL          bool
 }
 
 var AppConfig *Config
@@ -76,6 +85,13 @@ func Load() error {
 			Port: getEnvAsInt("SERVER_PORT", 8080),
 			Host: getEnv("SERVER_HOST", "localhost"),
 		},
+		MinIO: MinIOConfig{
+			Endpoint:        getEnv("MINIO_ENDPOINT", "localhost:9000"),
+			AccessKeyID:     getEnv("MINIO_ACCESS_KEY_ID", "minioadmin"),
+			SecretAccessKey: getEnv("MINIO_SECRET_ACCESS_KEY", "minioadmin"),
+			BucketName:      getEnv("MINIO_BUCKET_NAME", "huddle-files"),
+			UseSSL:          getEnvAsBool("MINIO_USE_SSL", false),
+		},
 	}
 
 	return nil
@@ -106,6 +122,15 @@ func getEnvAsDuration(key string, defaultValue time.Duration) time.Duration {
 	if value := os.Getenv(key); value != "" {
 		if duration, err := time.ParseDuration(value); err == nil {
 			return duration
+		}
+	}
+	return defaultValue
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
 		}
 	}
 	return defaultValue
