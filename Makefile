@@ -56,8 +56,11 @@ clean:
 # Database commands
 migrate: ## Run database migrations
 	@echo "🗄️  Running database migrations..."
-	@docker exec huddle_postgres psql -U huddle_user -d huddle -c "SELECT 'Migrations completed' as status;"
-	@echo "✅ Migrations completed"
+	@for file in migrations/*.sql; do \
+		echo "Running $$(basename $$file)..."; \
+		docker exec huddle_postgres psql -U huddle_user -d huddle -f /docker-entrypoint-initdb.d/$$(basename $$file); \
+	done
+	@echo "✅ All migrations completed successfully"
 
 migrate-reset: ## Reset database and run all migrations
 	@echo "🔄 Resetting database and running migrations..."

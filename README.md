@@ -31,11 +31,13 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 
 ### 👥 Friend System
 
-- [ ] Gửi lời mời kết bạn
-- [ ] Chấp nhận/từ chối lời mời
-- [ ] Danh sách bạn bè
-- [ ] Chặn/bỏ chặn người dùng
-- [ ] Quản lý lời mời kết bạn
+- [x] **Gửi lời mời kết bạn** - Send friend requests
+- [x] **Chấp nhận/từ chối lời mời** - Accept/reject friend requests
+- [x] **Danh sách bạn bè** - Friends list management
+- [x] **Chặn/bỏ chặn người dùng** - Block/unblock users
+- [x] **Quản lý lời mời kết bạn** - Friend request management
+- [x] **Bidirectional friendships** - Two-way friend relationships
+- [x] **Validation & error handling** - Proper business logic
 
 ### 💬 Chat Features
 
@@ -94,14 +96,14 @@ Huddle là một ứng dụng chat realtime hiện đại, lấy cảm hứng t�
 - **Sessions**: Phiên đăng nhập ✅
 - **Password Resets**: Token reset mật khẩu ✅
 - **User Activities**: Log hoạt động người dùng ✅
-- **Friend Requests**: Lời mời kết bạn ⏳
-- **Friendships**: Mối quan hệ bạn bè ⏳
+- **Friend Requests**: Lời mời kết bạn ✅
+- **Friendships**: Mối quan hệ bạn bè ✅
+- **Blocked Users**: Người dùng bị chặn ✅
+- **Conversations**: Cuộc hội thoại ⏳
+- **Messages**: Tin nhắn ⏳
 - **Groups**: Thông tin nhóm ⏳
 - **Group Members**: Thành viên nhóm ⏳
-- **Direct Messages**: Tin nhắn 1-1 ⏳
-- **Group Messages**: Tin nhắn nhóm ⏳
 - **Message Reactions**: Phản ứng tin nhắn ⏳
-- **Blocked Users**: Người dùng bị chặn ⏳
 
 ## 📁 Cấu trúc dự án
 
@@ -128,21 +130,32 @@ huddle/
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── friend/                     # Friend system module ⏳
+│   │   ├── friend/                     # Friend system module ✅
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
-│   │   ├── chat/                       # Chat module ⏳
+│   │   ├── conversation/               # Conversation management ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
 │   │   │   ├── repository.go
 │   │   │   ├── routes.go
-│   │   │   ├── websocket.go
 │   │   │   ├── model.go
 │   │   │   └── interface.go
+│   │   ├── message/                    # Message system ⏳
+│   │   │   ├── handler.go
+│   │   │   ├── service.go
+│   │   │   ├── repository.go
+│   │   │   ├── routes.go
+│   │   │   ├── model.go
+│   │   │   └── interface.go
+│   │   ├── websocket/                  # WebSocket hub ⏳
+│   │   │   ├── hub.go
+│   │   │   ├── client.go
+│   │   │   ├── handler.go
+│   │   │   └── routes.go
 │   │   ├── group/                      # Group management module ⏳
 │   │   │   ├── handler.go
 │   │   │   ├── service.go
@@ -213,9 +226,9 @@ huddle/
 
 **✅ Phase 1 & 2 COMPLETED** - Core infrastructure và authentication system đã hoàn thành 100%
 
-**🎯 Next Target**: Friend System và Chat Features (Phase 3)
+**🎯 Next Target**: Message System với WebSocket (Phase 3)
 
-**📊 Progress**: 35% of total project (Core features ready)
+**📊 Progress**: 65% of total project (Core features + Friend System + Conversation System ready)
 
 ### ✅ **Đã hoàn thành (Phase 1 - Foundation)**
 
@@ -270,20 +283,28 @@ huddle/
 - [x] **Current User** - Get authenticated user info
 - [ ] Avatar upload (MinIO integration pending)
 
-### ⏳ **Đang thực hiện (Phase 3 - Advanced Features)**
+### ✅ **Đã hoàn thành (Phase 2 - Friend System)**
 
-#### **Friend System:**
+- [x] **Friend requests** - Send, accept, reject, cancel
+- [x] **Friend list management** - Get friends, remove friends
+- [x] **User blocking** - Block/unblock users
+- [x] **Validation & error handling** - Complete business logic
 
-- [ ] Friend requests
-- [ ] Friend list management
-- [ ] User blocking
+### ✅ **Đã hoàn thành (Phase 3 - Conversation System)**
 
-#### **Chat Features:**
+- [x] **Conversation Management** - Create, list, update, delete conversations
+- [x] **Participant Management** - Add, remove, leave conversations
+- [x] **Smart Admin Transfer** - Hybrid admin leave logic with auto-promote
+- [x] **Database Schema** - conversations, conversation_participants, messages, message_reactions
+- [x] **API Endpoints** - Complete conversation system APIs
+- [x] **Business Logic** - Admin validation, access control, auto-promotion
+- [x] **Testing** - All success and error cases tested
 
-- [ ] WebSocket setup
-- [ ] Direct messaging
-- [ ] Group messaging
-- [ ] Message history
+### ⏳ **Đang thực hiện (Phase 3 - Message System)**
+
+- [ ] **Message System** - Send, receive, store messages
+- [ ] **WebSocket Hub** - Real-time communication
+- [ ] **Message History** - Retrieve chat history
 
 #### **File Sharing:**
 
