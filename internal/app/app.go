@@ -9,6 +9,7 @@ import (
 	"huddle/internal/config"
 	"huddle/internal/health"
 	"huddle/internal/middleware"
+	"huddle/internal/user"
 	"huddle/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -43,11 +44,19 @@ func NewApp() *App {
 }
 
 func setupRoutes(router *gin.Engine) {
+	// Initialize user module
+	userRepo := user.NewRepository()
+	userService := user.NewService(userRepo)
+	userHandler := user.NewHandler(userService)
+	
 	// API routes
 	api := router.Group("/api")
 	{
 		// Health check routes (no auth required)
 		health.SetupRoutes(api)
+		
+		// User routes
+		user.SetupRoutes(api, userHandler)
 	}
 
 	// Root route

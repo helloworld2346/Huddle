@@ -1,6 +1,7 @@
 package validation
 
 import (
+	"errors"
 	"strings"
 	"unicode"
 
@@ -72,109 +73,70 @@ func ValidateLength(value, fieldName string, min, max int) *ValidationError {
 }
 
 // ValidateEmail validates email format
-func ValidateEmail(email string) *ValidationError {
+func ValidateEmail(email string) error {
 	if email == "" {
-		return &ValidationError{
-			Field:   "email",
-			Message: "email is required",
-		}
+		return errors.New("email is required")
 	}
 	
 	if !IsEmailValid(email) {
-		return &ValidationError{
-			Field:   "email",
-			Message: "invalid email format",
-		}
+		return errors.New("invalid email format")
 	}
 	
 	if len(email) > 254 {
-		return &ValidationError{
-			Field:   "email",
-			Message: "email is too long",
-		}
+		return errors.New("email is too long")
 	}
 	
 	return nil
 }
 
 // ValidateUsername validates username format
-func ValidateUsername(username string) *ValidationError {
+func ValidateUsername(username string) error {
 	if username == "" {
-		return &ValidationError{
-			Field:   "username",
-			Message: "username is required",
-		}
+		return errors.New("username is required")
 	}
 	
 	if len(username) < 3 {
-		return &ValidationError{
-			Field:   "username",
-			Message: "username must be at least 3 characters long",
-		}
+		return errors.New("username must be at least 3 characters long")
 	}
 	
 	if len(username) > 20 {
-		return &ValidationError{
-			Field:   "username",
-			Message: "username must be less than 20 characters",
-		}
+		return errors.New("username must be less than 20 characters")
 	}
 	
 	// Username can only contain alphanumeric characters and underscores
 	if !IsUsernameValid(username) {
-		return &ValidationError{
-			Field:   "username",
-			Message: "username can only contain letters, numbers, and underscores",
-		}
+		return errors.New("username can only contain letters, numbers, and underscores")
 	}
 	
 	// Username cannot start with a number
 	if unicode.IsDigit(rune(username[0])) {
-		return &ValidationError{
-			Field:   "username",
-			Message: "username cannot start with a number",
-		}
+		return errors.New("username cannot start with a number")
 	}
 	
 	return nil
 }
 
 // ValidatePassword validates password strength
-func ValidatePassword(password string) *ValidationError {
+func ValidatePassword(password string) error {
 	if password == "" {
-		return &ValidationError{
-			Field:   "password",
-			Message: "password is required",
-		}
+		return errors.New("password is required")
 	}
 	
 	if len(password) < 8 {
-		return &ValidationError{
-			Field:   "password",
-			Message: "password must be at least 8 characters long",
-		}
+		return errors.New("password must be at least 8 characters long")
 	}
 	
 	if len(password) > 128 {
-		return &ValidationError{
-			Field:   "password",
-			Message: "password must be less than 128 characters",
-		}
+		return errors.New("password must be less than 128 characters")
 	}
 	
 	if !IsPasswordStrong(password) {
-		return &ValidationError{
-			Field:   "password",
-			Message: "password must contain uppercase, lowercase, number, and special character",
-		}
+		return errors.New("password must contain uppercase, lowercase, number, and special character")
 	}
 	
 	// Check for common weak passwords
 	if IsWeakPassword(password) {
-		return &ValidationError{
-			Field:   "password",
-			Message: "password is too common, please choose a stronger password",
-		}
+		return errors.New("password is too common, please choose a stronger password")
 	}
 	
 	return nil
@@ -200,37 +162,25 @@ func ValidateConfirmPassword(password, confirmPassword string) *ValidationError 
 }
 
 // ValidateBio validates bio length
-func ValidateBio(bio string) *ValidationError {
+func ValidateBio(bio string) error {
 	if bio != "" && len(bio) > 500 {
-		return &ValidationError{
-			Field:   "bio",
-			Message: "bio must be less than 500 characters",
-		}
+		return errors.New("bio must be less than 500 characters")
 	}
 	return nil
 }
 
 // ValidateDisplayName validates display name
-func ValidateDisplayName(displayName string) *ValidationError {
+func ValidateDisplayName(displayName string) error {
 	if displayName == "" {
-		return &ValidationError{
-			Field:   "display_name",
-			Message: "display name is required",
-		}
+		return errors.New("display name is required")
 	}
 	
 	if len(displayName) < 2 {
-		return &ValidationError{
-			Field:   "display_name",
-			Message: "display name must be at least 2 characters long",
-		}
+		return errors.New("display name must be at least 2 characters long")
 	}
 	
 	if len(displayName) > 50 {
-		return &ValidationError{
-			Field:   "display_name",
-			Message: "display name must be less than 50 characters",
-		}
+		return errors.New("display name must be less than 50 characters")
 	}
 	
 	return nil

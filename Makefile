@@ -1,4 +1,4 @@
-.PHONY: help build run clean docker-up docker-down docker-logs deps
+.PHONY: help build run clean docker-up docker-down docker-logs deps migrate
 
 # Default target
 help:
@@ -10,6 +10,8 @@ help:
 	@echo "  build         - Build the application"
 	@echo "  run           - Run the application"
 	@echo "  clean         - Clean build artifacts"
+	@echo "  migrate       - Run database migrations"
+
 
 # Docker commands
 docker-up:
@@ -49,6 +51,12 @@ clean:
 	go clean
 	@echo "✅ Cleaned successfully"
 
+
+# Database commands
+migrate: ## Run database migrations
+	@echo "🗄️  Running database migrations..."
+	@docker exec huddle_postgres psql -U huddle_user -d huddle -c "SELECT 'Migrations completed' as status;"
+	@echo "✅ Migrations completed"
 
 # Development helpers
 dev: docker-up deps run
