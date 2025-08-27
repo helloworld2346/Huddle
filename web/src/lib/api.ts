@@ -130,3 +130,117 @@ export const authApi = {
     });
   },
 };
+
+// Dashboard API interfaces
+export interface ConversationResponse {
+  id: number;
+  name: string;
+  type: "direct" | "group";
+  last_message?: {
+    content: string;
+    sender: string;
+    timestamp: string;
+  };
+  unread_count: number;
+  participants: UserResponse[];
+  updated_at: string;
+}
+
+export interface MessageResponse {
+  id: number;
+  content: string;
+  sender: UserResponse;
+  timestamp: string;
+  type: "text" | "file" | "image";
+  file_url?: string;
+  file_name?: string;
+}
+
+export interface UserResponse {
+  id: number;
+  username: string;
+  display_name: string;
+  avatar: string;
+  is_online: boolean;
+  last_seen?: string;
+}
+
+// Dashboard API functions
+export const dashboardApi = {
+  // Get user conversations
+  getConversations: async (
+    accessToken: string
+  ): Promise<ApiResponse<ConversationResponse[]>> => {
+    return apiCall<ConversationResponse[]>("/conversations", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  },
+
+  // Get conversation messages
+  getMessages: async (
+    conversationId: number,
+    accessToken: string
+  ): Promise<ApiResponse<MessageResponse[]>> => {
+    return apiCall<MessageResponse[]>(
+      `/conversations/${conversationId}/messages`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  },
+
+  // Send message
+  sendMessage: async (
+    conversationId: number,
+    content: string,
+    accessToken: string
+  ): Promise<ApiResponse<MessageResponse>> => {
+    return apiCall<MessageResponse>(
+      `/conversations/${conversationId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ content }),
+      }
+    );
+  },
+
+  // Create new conversation
+  createConversation: async (
+    data: {
+      name?: string;
+      type: "direct" | "group";
+      participant_ids: number[];
+    },
+    accessToken: string
+  ): Promise<ApiResponse<ConversationResponse>> => {
+    return apiCall<ConversationResponse>("/conversations", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    });
+  },
+
+  // Search users
+  searchUsers: async (
+    query: string,
+    accessToken: string
+  ): Promise<ApiResponse<UserResponse[]>> => {
+    return apiCall<UserResponse[]>(
+      `/users/search?q=${encodeURIComponent(query)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+  },
+};

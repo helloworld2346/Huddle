@@ -80,7 +80,6 @@ export default function LoginPage() {
       });
 
       // TODO: Store tokens and user data
-      // TODO: Redirect to dashboard
       setTimeout(() => {
         router.push("/dashboard");
       }, 1500);
