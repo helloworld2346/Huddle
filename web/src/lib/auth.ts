@@ -8,20 +8,10 @@ import React, {
   ReactNode,
 } from "react";
 import { authAPI, userAPI } from "./api";
+import type { User } from "./types";
 
-// User type
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-  display_name: string;
-  bio?: string;
-  avatar?: string;
-  is_public: boolean;
-  last_login?: string;
-  created_at: string;
-  updated_at: string;
-}
+// Re-export User type from types.ts
+export type { User } from "./types";
 
 // Auth context type
 interface AuthContextType {
